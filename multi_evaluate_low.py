@@ -4,30 +4,11 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import pandas as pd
+from models import Autoencoder
 
 # === PARAMETRY ===
 INPUT_DIM = 49
 NUM_THRESHOLDS = 20
-
-# === Autoencoder ===
-class Autoencoder(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(INPUT_DIM, 32),
-            nn.ReLU(),
-            nn.Linear(32, 16),
-            nn.ReLU()
-        )
-        self.decoder = nn.Sequential(
-            nn.Linear(16, 32),
-            nn.ReLU(),
-            nn.Linear(32, INPUT_DIM)
-        )
-
-    def forward(self, x):
-        z = self.encoder(x)
-        return self.decoder(z)
 
 # === Wczytanie danych i modelu ===
 X_attack = np.load("X_attack.npy")

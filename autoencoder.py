@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+from models import Autoencoder
 
 # === Parametry ===
 INPUT_DIM = 49
@@ -28,26 +29,6 @@ X_valid_tensor = torch.tensor(X_valid, dtype=torch.float32)
 
 train_loader = DataLoader(TensorDataset(X_train_tensor), batch_size=BATCH_SIZE, shuffle=True)
 valid_loader = DataLoader(TensorDataset(X_valid_tensor), batch_size=BATCH_SIZE, shuffle=False)
-
-# === Definicja modelu autoenkodera ===
-class Autoencoder(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(INPUT_DIM, 32),
-            nn.ReLU(),
-            nn.Linear(32, 16),
-            nn.ReLU()
-        )
-        self.decoder = nn.Sequential(
-            nn.Linear(16, 32),
-            nn.ReLU(),
-            nn.Linear(32, INPUT_DIM)
-        )
-
-    def forward(self, x):
-        z = self.encoder(x)
-        return self.decoder(z)
 
 model = Autoencoder()
 criterion = nn.MSELoss()

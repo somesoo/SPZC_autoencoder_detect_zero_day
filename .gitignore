@@ -2,3 +2,5 @@
 .venv/
 data/
 *.npy
+autoencoder_*.json
+autoencoder_*.pt
