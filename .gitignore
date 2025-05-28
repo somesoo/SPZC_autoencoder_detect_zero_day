@@ -3,7 +3,6 @@
 data/
 *.npy
 autoencoder_*.json
-autoencoder_*.pt
 separated/
 *.csv
-*.pkl
+__pycache__
