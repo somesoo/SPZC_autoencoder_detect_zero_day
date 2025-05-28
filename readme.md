@@ -12,16 +12,6 @@ Wersja robocza – przygotowanie danych do wykrywania ataków typu zero-day przy
 
 ---
 
-## Struktura katalogów
-
-/data/TrafficLabelling/ ← surowe pliki CSV
-/separated/ ← pliki podzielone wg typu ruchu i dnia
-/benign_splits/ ← benign podzielone: train / valid / test
-/prepared_data/ ← gotowe pliki .npy i scaler
-
-
----
-
 ## Skrypty
 
 ### `split_attacks_by_day.py`
@@ -41,11 +31,10 @@ Wczytuje `benign_train.csv` i `benign_valid.csv`, usuwa kolumny nienumeryczne i 
 ### `trenowanie encodera`
 Korzystając z skryptu optimize_autoencoder.py przetestowałem 24 kombinacje i wybrałem najlepszą.
 Zapis każdej jest w plikach train.log, optimization_results/\*, plots/\*
-
+- Trenowanie autoenkodera na `X_train.npy`
 
 ## Następne kroki
 - Teraz należy przygotować zbiory testowe per atak i per kilka ataków i zoptymalizować treshold wykrywania
 - Połączenie `benign_test.csv` z wybranymi atakami do stworzenia `X_test.npy`, `y_test.npy`
-- Trenowanie autoenkodera na `X_train.npy`
 - Ocena skuteczności na danych atakowych
 
