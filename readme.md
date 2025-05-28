@@ -1,3 +1,5 @@
+Dane .csv mam lokalnie u siebie, za duże aby wrzucać na repo
+
 # Zero-Day Attack Detection — Dataset Preparation (Phase 2)
 
 Wersja robocza – przygotowanie danych do wykrywania ataków typu zero-day przy użyciu autoenkodera.
@@ -36,8 +38,13 @@ Wczytuje `benign_train.csv` i `benign_valid.csv`, usuwa kolumny nienumeryczne i 
 
 ---
 
-## Następne kroki
+### `trenowanie encodera`
+Korzystając z skryptu optimize_autoencoder.py przetestowałem 24 kombinacje i wybrałem najlepszą.
+Zapis każdej jest w plikach train.log, optimization_results/\*, plots/\*
 
+
+## Następne kroki
+- Teraz należy przygotować zbiory testowe per atak i per kilka ataków i zoptymalizować treshold wykrywania
 - Połączenie `benign_test.csv` z wybranymi atakami do stworzenia `X_test.npy`, `y_test.npy`
 - Trenowanie autoenkodera na `X_train.npy`
 - Ocena skuteczności na danych atakowych
