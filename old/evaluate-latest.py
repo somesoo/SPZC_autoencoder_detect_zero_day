@@ -7,7 +7,7 @@ import joblib
 from models import Autoencoder
 
 # === Parametry ===
-THRESHOLD = 0.01
+THRESHOLD = 0.04
 DATA_DIR = "./prepared_data"
 
 # === Wczytaj dane i model ===
