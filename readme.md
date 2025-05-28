@@ -1,23 +1,44 @@
-/home/johnny/Documents/studia/spzc/PROJ/preproces_dataset.py:23: DtypeWarning: Columns (0,1,3,6,84) have mixed types. Specify dtype option on import or set low_memory=False.
-  df = pd.read_csv(file, encoding='latin1')  # fallback, np. Windows-1252
-Wczytano 3119345 rekordów z 8 plików.
-Usunięto 31 silnie skorelowanych cech.
-Dane gotowe:
-- X_train: (1703490, 49)
-- X_valid: (567830, 49)
-- X_attack: (556556, 49)
+# Zero-Day Attack Detection — Dataset Preparation (Phase 2)
+
+Wersja robocza – przygotowanie danych do wykrywania ataków typu zero-day przy użyciu autoenkodera.
+
+## Cele
+
+- Rozdzielenie danych źródłowych na osobne pliki CSV dla każdego ataku i dnia,
+- Połączenie danych benign w jeden zbiór i jego podział (train/valid/test),
+- Przygotowanie danych treningowych w formacie `.npy` z odpowiednim skalowaniem.
+
+---
+
+## Struktura katalogów
+
+/data/TrafficLabelling/ ← surowe pliki CSV
+/separated/ ← pliki podzielone wg typu ruchu i dnia
+/benign_splits/ ← benign podzielone: train / valid / test
+/prepared_data/ ← gotowe pliki .npy i scaler
 
 
-## Aktualny stan
+---
 
-- Przetworzono dane CICIDS2017 (feature selection, skalowanie)
-- Podzielono dane: 60% benign (trening), 20% benign (walidacja), 20% benign + ataki (test)
-- Wytrenowano autoenkoder na benign (architektura: 80 → 32 → 16 → 32 → 80)
-- Model zapisano jako `.pt`, metadane `.json`, wykres strat `.png`
-- Testowanie oparte na błędzie rekonstrukcji (MSE), progi dobierane ręcznie
-- Skrypty: `prepare_balanced_dataset.py`, `train_autoencoder_prepared.py`, `evaluate_prepared.py`
+## Skrypty
 
-## Do zrobienia
+### `split_attacks_by_day.py`
+Dzieli każdy plik CSV z `TrafficLabelling` na osobne pliki według typu ruchu (`Label`) i dnia, zapisując do `./separated/`.
 
-- Dalsze testy dla różnych progów detekcji
-- Analiza wykrywalności typów ataków
+### `split_benign_dataset.py`
+Łączy wszystkie pliki `BENIGN__*.csv` i dzieli dane na:
+- 70% → `benign_train.csv` (trening),
+- 10% → `benign_valid.csv` (walidacja),
+- 20% → `benign_test.csv` (do testowania z atakami).
+
+### `convert_csv_to_npy.py`
+Wczytuje `benign_train.csv` i `benign_valid.csv`, usuwa kolumny nienumeryczne i skaluje dane, zapisując je do plików `.npy` oraz `scaler.pkl`.
+
+---
+
+## Następne kroki
+
+- Połączenie `benign_test.csv` z wybranymi atakami do stworzenia `X_test.npy`, `y_test.npy`
+- Trenowanie autoenkodera na `X_train.npy`
+- Ocena skuteczności na danych atakowych
+
