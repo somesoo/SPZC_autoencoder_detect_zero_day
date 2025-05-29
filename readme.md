@@ -134,4 +134,3 @@ python3 visualize_pairwise.py --metric recall
 ## Dodatkowe narzędzia:
 
 * `generate_attack_list.py` – zapisuje wszystkie dostępne ataki do `attack_list.txt`
-* Pętla testowa:
