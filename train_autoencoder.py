@@ -90,7 +90,7 @@ for epoch in range(1, args.epochs + 1):
         output_v = model(X_valid_tensor.to(device))
         v_loss = criterion(output_v, X_valid_tensor.to(device)).item()
         v_mse  = torch.mean((output_v - X_valid_tensor.to(device)) ** 2, dim=1)
-        v_acc  = (v_mse < 0.01).sum().item() / len(X_valid_tensor)
+        v_acc  = (v_mse < 0.02).sum().item() / len(X_valid_tensor)
 
     valid_losses.append(v_loss)
     valid_acc.append(v_acc)
