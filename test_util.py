@@ -7,16 +7,23 @@ def load_scaler(path="./prepared_data/scaler_train_valid.pkl"):
 
 def load_model(model_path, input_dim, device):
     from models import Autoencoder
+    meta_path = model_path.replace(".pt", ".json").replace("models/", "models/meta_")
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+
+    model = Autoencoder(
+        input_dim=input_dim,
+        encoder_dims=meta.get("encoder_dims", [64, 32, 16]),
+        decoder_dims=meta.get("decoder_dims", [32, 64]),
+        use_batchnorm=meta.get("batchnorm", False),
+        dropout=meta.get("dropout", 0.0)
+    ).to(device)
+
     checkpoint = torch.load(model_path, map_location=device)
-    # Architektura musi odpowiadać checkpointowi – zmień, jeśli masz inną
-    model = Autoencoder(input_dim=input_dim,
-                        encoder_dims=[64, 32, 16],
-                        decoder_dims=[32, 64],
-                        use_batchnorm=True,
-                        dropout=0.1).to(device)
     model.load_state_dict(checkpoint)
     model.eval()
     return model
+
 
 def mse_tensor(a, b):
     return torch.mean((a - b) ** 2, dim=1)

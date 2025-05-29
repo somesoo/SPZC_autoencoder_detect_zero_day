@@ -1,5 +1,7 @@
-#!/usr/bin/env python3
-import argparse, glob, os, numpy as np, pandas as pd, torch
+import argparse, glob, os
+import numpy as np
+import torch
+import pandas as pd
 from datetime import datetime
 from test_util import load_scaler, load_model, mse_tensor, compute_metrics, save_artifacts
 from collections import defaultdict, Counter, OrderedDict
@@ -77,7 +79,7 @@ def main():
     model = load_model(args.model, input_dim, DEVICE)
     X_tensor = torch.tensor(X_test, dtype=torch.float32, device=DEVICE)
     recon    = model(X_tensor)
-    mse_vals = mse_tensor(X_tensor, recon).cpu().numpy()
+    mse_vals = mse_tensor(X_tensor, recon).detach().cpu().numpy()
 
     summary = []
     per_class = defaultdict(lambda: {"tp":0,"fn":0})
@@ -110,6 +112,10 @@ def main():
             {"threshold":th,"label":lbl,"tp":tp,"fn":fn,"recall":round(recall,4)}
         )
 
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    out_root  = os.path.join("tests", f"{timestamp}_{args.test_type}")
+    os.makedirs(out_root, exist_ok=True)
+
     # ----- zapisz artefakty -----
     save_artifacts(
         out_root, X_test, y_test,
@@ -121,10 +127,6 @@ def main():
     pd.DataFrame(summary).to_csv(os.path.join(out_root, "metrics_table.csv"), index=False)
     pd.DataFrame(per_class_results).to_csv(os.path.join(out_root, "per_class_recall.csv"), index=False)
 
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    out_root  = os.path.join("tests", f"{timestamp}_{args.test_type}")
-    os.makedirs(out_root, exist_ok=True)
 
     summary = []
     for th in args.thresholds:
@@ -139,7 +141,7 @@ def main():
                    metrics={"per_threshold": summary})
 
     # zapisz zbiorczą tabelę
-    import pandas as pd
+
     pd.DataFrame(summary).to_csv(os.path.join(out_root, "metrics_table.csv"), index=False)
     print("Zakończono test. Wyniki zapisane w", out_root)
 
