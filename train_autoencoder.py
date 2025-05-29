@@ -59,11 +59,15 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_
 print(f"Trenowanie modelu: input_dim={input_dim}, encoder={args.encoder}, decoder={args.decoder}")
 start_all = datetime.now()
 
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+
+train_losses, valid_losses = [], []
+train_acc,    valid_acc    = [], []
+
 for epoch in range(1, args.epochs + 1):
     model.train()
-    epoch_loss = 0
-    start_epoch = datetime.now()
-
+    epoch_loss, correct = 0.0, 0
     for (batch,) in train_loader:
         batch = batch.to(device)
         optimizer.zero_grad()
@@ -73,19 +77,28 @@ for epoch in range(1, args.epochs + 1):
         optimizer.step()
         epoch_loss += loss.item() * batch.size(0)
 
-    avg_train_loss = epoch_loss / len(X_train_tensor)
-    train_losses.append(avg_train_loss)
+        # accuracy na FIXED_THRESHOLD = 0.01  (możesz zmienić)
+        mse_vals = torch.mean((output - batch) ** 2, dim=1)
+        correct += (mse_vals < 0.01).sum().item()
+
+    train_losses.append(epoch_loss / len(X_train_tensor))
+    train_acc.append(correct / len(X_train_tensor))
+
 
     model.eval()
     with torch.no_grad():
-        output_valid = model(X_valid_tensor.to(device))
-        valid_loss = criterion(output_valid, X_valid_tensor.to(device)).item()
-        valid_losses.append(valid_loss)
+        output_v = model(X_valid_tensor.to(device))
+        v_loss = criterion(output_v, X_valid_tensor.to(device)).item()
+        v_mse  = torch.mean((output_v - X_valid_tensor.to(device)) ** 2, dim=1)
+        v_acc  = (v_mse < 0.01).sum().item() / len(X_valid_tensor)
 
-    end_epoch = datetime.now()
-    duration = (end_epoch - start_epoch).total_seconds()
-    print(f"[{epoch}/{args.epochs}] Train Loss: {avg_train_loss:.6f} | Valid Loss: {valid_loss:.6f} | Time: {duration:.2f}s")
+    valid_losses.append(v_loss)
+    valid_acc.append(v_acc)
 
+    print(f"[{epoch}/{args.epochs}] "
+          f"TrainLoss={train_losses[-1]:.5f}  ValidLoss={v_loss:.5f}  "
+          f"TAcc={train_acc[-1]:.4f}  VAcc={v_acc:.4f}")
+    
 # === Zapis modelu i metadanych
 timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 model_name = f"autoencoder_{timestamp}.pt"
@@ -108,14 +121,16 @@ with open(os.path.join(args.models_dir, f"meta_{timestamp}.json"), "w") as f:
     json.dump(metadata, f, indent=2)
 
 # === Wykres
+plt.figure(figsize=(6,4))
 plt.plot(train_losses, label="Train Loss")
 plt.plot(valid_losses, label="Valid Loss")
-plt.xlabel("Epoch")
-plt.ylabel("MSE Loss")
-plt.title("Autoencoder Training")
-plt.legend()
-plt.grid(True)
-plt.savefig(os.path.join(args.plots_dir, f"loss_{timestamp}.png"))
+plt.plot(train_acc,   label="Train Acc")
+plt.plot(valid_acc,   label="Valid Acc")
+plt.xlabel("Epoch"); plt.grid(True); plt.legend()
+plt.title("Autoencoder – Loss & Accuracy")
+plt.tight_layout()
+plt.savefig(os.path.join("plots", "loss_acc_curve.png"))
+plt.close()
 
 print(f"Zapisano model: {model_name}")
 print(f"Zapisano metadane i wykres do: {args.models_dir}, {args.plots_dir}")
