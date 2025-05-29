@@ -3,7 +3,9 @@
 data/
 autoencoder_*.json
 __pycache__
-*.npy
+X_train.npy
+X_valid.npy
+X_test.npy
 benign_splits/
 separated/BENIGN__*
 separated/DoS-Hulk__Wednesday*
