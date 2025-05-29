@@ -9,6 +9,10 @@
 * matplotlib
 * seaborn
 
+## Dataset:
+
+http://cicresearch.ca/CICDataset/CIC-IDS-2017/Dataset/CIC-IDS-2017/
+
 ## Struktura katalogów
 
 ```
