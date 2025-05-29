@@ -78,5 +78,5 @@ for combo in attack_combos:
         })
         print(f"  Model: {model_name:35} TP={best['tp']}, FN={best['fn']}, Recall={best['recall']:.3f}, F1={best['f1']:.3f}, FPR={best['fpr']:.3f}, Th={best['threshold']:.3f}")
 
-pd.DataFrame(results).to_csv(f"benchmark_pairwise_results{args.c}.csv", index=False)
+pd.DataFrame(results).to_csv(f"benchmark/benchmark_pairwise_results{args.c}.csv", index=False)
 print(f"\nZapisano benchmark do benchmark_pairwise_results{args.c}.csv")

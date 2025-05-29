@@ -68,6 +68,6 @@ for model_path in sorted(model_paths):
         print(f"  {label:25} best_f1={best['f1']:.3f}  recall={best['recall']:.3f}  thr={best['threshold']:.3f}")
 
 # Zapisz zbiorczy raport
-out_path = "benchmark_single_results.csv"
+out_path = f"benchmark/benchmark_single_results_{args.models_dir}.csv"
 pd.DataFrame(results).to_csv(out_path, index=False)
 print("\nZapisano podsumowanie do:", out_path)
