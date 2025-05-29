@@ -76,7 +76,8 @@ Przykład:
 ```bash
 python3 run_test.py \
   --model models/autoencoder_20250529_1621.pt \
-  --test-type single --attack ddos \
+  --test-type single \
+  --attack-files separated/PortScan__Friday-WorkingHours-Afternoon-PortScan.csv \
   --thresholds 0.01 0.02 0.03 0.04
 ```
 
@@ -88,7 +89,7 @@ python3 run_test.py \
 ## 6. Generowanie wykresów z wyników testów
 
 ```bash
-python3 plots_from_results.py --test-dir tests/<folder> --metric recall
+python3 plots_from_results.py --test-dir tests/<folder> 
 ```
 
 Automatycznie wybiera najlepszy threshold i rysuje 3 wykresy.

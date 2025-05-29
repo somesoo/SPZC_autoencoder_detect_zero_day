@@ -8,31 +8,41 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--test-dir", required=True, help="Folder testu zawierający metrics_table.csv i per_class_recall.csv")
 args = parser.parse_args()
 
-# --- Wczytaj dane ---
+# --- Ścieżki do plików ---
 metrics_path = os.path.join(args.test_dir, "metrics_table.csv")
 perclass_path = os.path.join(args.test_dir, "per_class_recall.csv")
 
 if not os.path.exists(metrics_path):
     raise FileNotFoundError(f"Brak pliku: {metrics_path}")
 
+# --- Wczytaj metrics_table.csv i przetwórz ---
 metrics_df = pd.read_csv(metrics_path)
-try:
-    if os.path.exists(perclass_path) and os.path.getsize(perclass_path) > 0:
-        perclass_df = pd.read_csv(perclass_path)
-    else:
-        perclass_df = pd.DataFrame()
-except pd.errors.EmptyDataError:
-    perclass_df = pd.DataFrame()
+
+# Konwersja metryk do typu float, ignoruj błędne
+for col in ["threshold", "recall", "f1", "fpr"]:
+    metrics_df[col] = pd.to_numeric(metrics_df[col], errors="coerce")
+
+# Usuń wiersze z brakami istotnych danych
+metrics_df.dropna(subset=["threshold", "recall", "f1"], inplace=True)
+
+# FPR może być opcjonalny — usuń tylko jeśli go rysujemy
+has_fpr = metrics_df["fpr"].notna().any()
 
 # --- Wybierz najlepszy threshold (najwyższe F1) ---
+if metrics_df.empty:
+    raise ValueError("Plik metrics_table.csv nie zawiera wystarczających danych do stworzenia wykresu.")
+
 best_row = metrics_df.sort_values("f1", ascending=False).iloc[0]
 best_threshold = best_row["threshold"]
 
-# --- Wykres: Recall / F1 / FPR vs Threshold ---
+# --- Wykres 1: Recall / F1 / FPR ---
 plt.figure(figsize=(8,5))
 plt.plot(metrics_df["threshold"], metrics_df["recall"], label="Recall")
 plt.plot(metrics_df["threshold"], metrics_df["f1"], label="F1 Score")
-plt.plot(metrics_df["threshold"], metrics_df["fpr"], label="FPR")
+
+if has_fpr:
+    plt.plot(metrics_df["threshold"], metrics_df["fpr"], label="FPR")
+
 plt.axvline(best_threshold, color="gray", linestyle="--", label=f"Best threshold = {best_threshold:.3f}")
 plt.xlabel("Threshold")
 plt.ylabel("Metric value")
@@ -43,9 +53,23 @@ plt.tight_layout()
 plt.savefig(os.path.join(args.test_dir, "plot_recall_f1_fpr.png"))
 plt.close()
 
-# --- Wykres: Recall per klasa (dla najlepszego threshold) ---
+# --- Wczytaj i przetwórz per_class_recall.csv ---
+try:
+    if os.path.exists(perclass_path) and os.path.getsize(perclass_path) > 0:
+        perclass_df = pd.read_csv(perclass_path)
+    else:
+        perclass_df = pd.DataFrame()
+except pd.errors.EmptyDataError:
+    perclass_df = pd.DataFrame()
+
+# --- Wykres 2: Recall per klasa dla najlepszego threshold ---
 if not perclass_df.empty and "threshold" in perclass_df.columns:
+    perclass_df["threshold"] = pd.to_numeric(perclass_df["threshold"], errors="coerce")
+    perclass_df["recall"] = pd.to_numeric(perclass_df["recall"], errors="coerce")
+
     class_at_th = perclass_df[perclass_df["threshold"] == best_threshold]
+    class_at_th.dropna(subset=["recall"], inplace=True)
+
     if not class_at_th.empty:
         class_at_th = class_at_th.sort_values("recall", ascending=False)
 

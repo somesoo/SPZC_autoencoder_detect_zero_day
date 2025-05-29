@@ -26,7 +26,7 @@ def build_dataset(test_type, attack_files, benign_test_csv, scaler):
         for f in attack_files:
             df = pd.read_csv(f, encoding="latin1", low_memory=False)
             label = os.path.basename(f).split("__")[0]  # np. 'DDoS'
-            df["__label__"] = label
+            df["Label"] = label
             attacks_df_list.append(df)
             attack_labels.append(label)
 
@@ -37,7 +37,11 @@ def build_dataset(test_type, attack_files, benign_test_csv, scaler):
 
     if test_type in ("mix", "benign"):
         benign_df = pd.read_csv(benign_test_csv, encoding="latin1", low_memory=False)
-
+    
+    y_labels = (
+        ["BENIGN"] * len(benign_df) +
+        attacks_df["Label"].tolist() if len(attacks_df) else []
+    )
     # ----- czyszczenie kolumn numerycznych -----
     def clean(df):
         df = df.select_dtypes(include=["number"])
@@ -54,12 +58,6 @@ def build_dataset(test_type, attack_files, benign_test_csv, scaler):
     X_test = np.vstack([X_benign, X_attack])
     # y_true binarne
     y_test = np.hstack([np.zeros(len(X_benign)), np.ones(len(X_attack))]).astype(int)
-
-    # etykiety string (BENIGN / konkretny atak)
-    y_labels = (
-        ["BENIGN"] * len(X_benign) +
-        attacks_df["__label__"].tolist() if len(attacks_df) else []
-    )
 
     return X_test, y_test, y_labels
 
@@ -113,7 +111,12 @@ def main():
         )
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    out_root  = os.path.join("tests", f"{timestamp}_{args.test_type}")
+    if args.test_type == "single" and args.attack_files:
+        attack_names = [os.path.splitext(os.path.basename(f))[0].split("__")[0] for f in args.attack_files]
+        attack_suffix = "_".join(sorted(set(attack_names)))  # usuń duplikaty i posortuj
+        out_root = os.path.join("tests", f"{timestamp}_{args.test_type}_{attack_suffix}")
+    else:
+        out_root = os.path.join("tests", f"{timestamp}_{args.test_type}")
     os.makedirs(out_root, exist_ok=True)
 
     # ----- zapisz artefakty -----
@@ -122,6 +125,11 @@ def main():
         params=vars(args),
         metrics={"per_threshold": summary, "per_class": per_class_results}
     )
+
+    for row in summary:
+        if "fpr" in row and row["fpr"] == -1.0:
+            row["fpr"] = "n/a"
+
 
     # dodatkowe tabelki CSV
     pd.DataFrame(summary).to_csv(os.path.join(out_root, "metrics_table.csv"), index=False)
@@ -134,6 +142,7 @@ def main():
         metrics = compute_metrics(y_test, y_pred)
         metrics["threshold"] = th
         summary.append(metrics)
+
 
     # zapisz artefakty ostatniej iteracji (pełny zbiór)
     save_artifacts(out_root, X_test, y_test,

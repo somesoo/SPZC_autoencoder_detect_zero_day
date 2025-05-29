@@ -1,0 +1,5 @@
+threshold,label,tp,fn,recall
+0.01,PortScan,4062,154868,0.0256
+0.02,PortScan,1645,157285,0.0104
+0.03,PortScan,1255,157675,0.0079
+0.04,PortScan,891,158039,0.0056

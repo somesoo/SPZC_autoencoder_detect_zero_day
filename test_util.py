@@ -29,12 +29,15 @@ def mse_tensor(a, b):
     return torch.mean((a - b) ** 2, dim=1)
 
 def compute_metrics(y_true, y_pred):
+    tn_count = (y_true == 0).sum()
+    fpr = ((y_pred == 1) & (y_true == 0)).sum() / tn_count if tn_count > 0 else None
+
     return {
         "accuracy":  accuracy_score(y_true, y_pred),
         "recall":    recall_score(y_true, y_pred, zero_division=0),
         "precision": precision_score(y_true, y_pred, zero_division=0),
         "f1":        f1_score(y_true, y_pred, zero_division=0),
-        "fpr":       ((y_pred==1) & (y_true==0)).sum() / (y_true==0).sum()
+        "fpr":       fpr
     }
 
 def save_artifacts(out_dir, X, y, params, metrics):
