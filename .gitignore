@@ -1,8 +1,7 @@
 *.pdf
 .venv/
 data/
-*.npy
 autoencoder_*.json
-separated/
-*.csv
 __pycache__
+*.csv
+*.npy

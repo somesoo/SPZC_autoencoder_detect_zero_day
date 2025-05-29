@@ -17,6 +17,9 @@ python3 run_test.py \
   --test-type benign \
   --thresholds 0.01 0.02 0.03 0.04
 
+while read attack; do
+  python3 run_test.py --model models/autoencoder_20250529_1621.pt --test-type single --attack "$attack" --thresholds 0.01 0.02 0.03
+done < attack_list.txt
 
 
 Każde wywołanie tworzy w ./tests/<timestamp>_<test-type>/:
