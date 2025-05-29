@@ -110,12 +110,12 @@ Zapisuje `benchmark_single_results.csv`
 ### Benchmark: pary/kombinacje ataków
 
 ```bash
-python3 benchmark_pairwise.py \
+python3 benchmark_multiple.py \
   --models-dir models \
   --data-dir separated \
   --benign-test-csv benign_splits/benign_test.csv \
   --thresholds 0.01 0.02 0.03 0.04 \
-  -n 4 -c 3
+  --n 4 --c 3
 ```
 
 Zapisuje `benchmark_pairwise_results.csv`
