@@ -3,5 +3,7 @@
 data/
 autoencoder_*.json
 __pycache__
-*.csv
 *.npy
+benign_splits/
+separated/BENIGN__*
+separated/DoS-Hulk__Wednesday*
