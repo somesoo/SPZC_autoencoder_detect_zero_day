@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Znajduje optymalny threshold:
- - minimalny FPR przy Recall ≥ target (domyślnie 0.90)
-Używa pliku tests/<timestamp>_<type>/X_test.npy  y_test.npy oraz wytrenowanego modelu
-"""
 import argparse, json, os, numpy as np, torch
 from test_util import load_model, load_scaler, mse_tensor, compute_metrics
 

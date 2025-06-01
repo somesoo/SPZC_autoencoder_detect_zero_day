@@ -6,6 +6,7 @@ import torch
 import itertools
 from test_util import load_model, load_scaler, mse_tensor
 from sklearn.metrics import recall_score
+from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--models-dir", required=True)
@@ -25,9 +26,13 @@ attack_paths = [os.path.join(args.data_dir, f) for f in attack_files]
 
 attack_combos = list(itertools.combinations(attack_paths, args.c))[:args.n]
 
+timestamp = datetime.now().strftime("%Y%m%d")
+out_root = os.path.join("tests", f"{timestamp}_pairwise_c{args.c}")
+os.makedirs(out_root, exist_ok=True)
+
 results = []
 
-for combo in attack_combos:
+for idx, combo in enumerate(attack_combos):
     labels = [os.path.basename(p).split("__")[0] for p in combo]
     attack_label = "+".join(labels)
     print(f"\nKombinacja: {attack_label}")
@@ -62,7 +67,9 @@ for combo in attack_combos:
             fn = ((y_pred == 0) & (y == 1)).sum()
             fpr = ((y_pred == 1) & (y == 0)).sum() / max(1, (y == 0).sum())
             rec = recall_score(y, y_pred, zero_division=0)
-            f1 = 2 * (tp / (tp + fn + 1e-6)) * (tp / (tp + ((y_pred == 1) & (y == 0)).sum() + 1e-6)) / (tp / (tp + fn + 1e-6) + tp / (tp + ((y_pred == 1) & (y == 0)).sum() + 1e-6) + 1e-6)
+            precision = tp / (tp + ((y_pred == 1) & (y == 0)).sum() + 1e-6)
+            recall_ = tp / (tp + fn + 1e-6)
+            f1 = 2 * precision * recall_ / (precision + recall_ + 1e-6)
             if f1 > best["f1"]:
                 best.update({"threshold": th, "recall": rec, "f1": f1, "tp": tp, "fn": fn, "fpr": fpr})
 
@@ -78,5 +85,12 @@ for combo in attack_combos:
         })
         print(f"  Model: {model_name:35} TP={best['tp']}, FN={best['fn']}, Recall={best['recall']:.3f}, F1={best['f1']:.3f}, FPR={best['fpr']:.3f}, Th={best['threshold']:.3f}")
 
-pd.DataFrame(results).to_csv(f"benchmark/benchmark_pairwise_results{args.c}.csv", index=False)
-print(f"\nZapisano benchmark do benchmark_pairwise_results{args.c}.csv")
+        # Zapis artefaktów do plików
+        subdir = os.path.join(out_root, f"{attack_label}_{model_name}".replace(".pt", ""))
+        os.makedirs(subdir, exist_ok=True)
+        np.save(os.path.join(subdir, "X.npy"), X)
+        np.save(os.path.join(subdir, "y.npy"), y)
+        np.save(os.path.join(subdir, "mse_vals.npy"), mse_vals)
+
+pd.DataFrame(results).to_csv(os.path.join(out_root, f"benchmark_pairwise_results{args.c}.csv"), index=False)
+print(f"\nZapisano benchmark do {out_root}/benchmark_pairwise_results{args.c}.csv")
