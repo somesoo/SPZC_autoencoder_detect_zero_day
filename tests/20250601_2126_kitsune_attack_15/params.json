@@ -1,0 +1,13 @@
+{
+  "model": "models/autoencoder_20250601_2108.pt",
+  "benign_file": "benign_splits/benign_test.csv",
+  "attack_files": [
+    "attack_splits/attack_15.csv"
+  ],
+  "thresholds": [
+    0.01,
+    0.02,
+    0.05,
+    0.1
+  ]
+}

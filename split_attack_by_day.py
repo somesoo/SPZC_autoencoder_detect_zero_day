@@ -1,37 +1,28 @@
 import os
 import pandas as pd
 import glob
-import re
 
-SOURCE_DIR = "./data/TrafficLabelling"
-OUTPUT_DIR = "./separated"
-LABEL_COL = " Label"  # z uwzględnieniem spacji
+SOURCE_DATA = "./data/TrafficLabelling/ARP_MitM_dataset.csv"
+SOURCE_LABELS = "./data/TrafficLabelling/ARP_MitM_labels.csv"
+OUTPUT_DIR = "./separated_kitsune"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def normalize_label(label):
-    label = label.strip()
-    label = label.replace("–", "-").replace(" ", "-")
-    label = re.sub(r"[^A-Za-z0-9\-]", "", label)  # usuń znaki specjalne
-    return label
+# Wczytaj dane i etykiety
+df_data = pd.read_csv(SOURCE_DATA, header=None)
+df_labels = pd.read_csv(SOURCE_LABELS)
 
-csv_files = glob.glob(os.path.join(SOURCE_DIR, "*.csv"))
+# Dopasuj długości (ostrożnie!)
+if len(df_data) != len(df_labels):
+    raise ValueError("Liczba wierszy w danych i etykietach się nie zgadza!")
 
-for file_path in sorted(csv_files):
-    try:
-        df = pd.read_csv(file_path, encoding='latin1', low_memory=False)
-        df.columns = df.columns.str.strip()
-        if "Label" not in df.columns:
-            print(f"Pominięto {file_path}: brak kolumny 'Label'")
-            continue
+# Dodaj etykiety jako ostatnią kolumnę
+df_data['Label'] = df_labels['x']
 
-        filename = os.path.basename(file_path).replace(".pcap_ISCX.csv", "").replace(".csv", "")
-        for label_value, group in df.groupby("Label"):
-            clean_label = normalize_label(label_value)
-            out_name = f"{clean_label}__{filename}.csv"
-            out_path = os.path.join(OUTPUT_DIR, out_name)
-            group.to_csv(out_path, index=False)
-            print(f"Zapisano {out_name} ({len(group)} rekordów)")
-
-    except Exception as e:
-        print(f"Błąd przy przetwarzaniu {file_path}: {e}")
+# Rozdziel na pliki
+for label_value, group in df_data.groupby('Label'):
+    label_str = "benign" if label_value == 0 else f"attack"
+    out_name = f"{label_str}.csv"
+    out_path = os.path.join(OUTPUT_DIR, out_name)
+    group.to_csv(out_path, index=False, header=False)
+    print(f"Zapisano {out_name} ({len(group)} rekordów)")

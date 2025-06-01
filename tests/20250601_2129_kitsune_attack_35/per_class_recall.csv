@@ -1,0 +1,5 @@
+threshold,label,tp,fn,recall
+0.01,attack_35.csv,363128,94982,0.7927
+0.02,attack_35.csv,183780,274330,0.4012
+0.05,attack_35.csv,42954,415156,0.0938
+0.1,attack_35.csv,23403,434707,0.0511

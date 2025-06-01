@@ -36,7 +36,7 @@ if current_losses:
     losses_all_trials.append(current_losses)
 
 # Sprawdź poprawność
-assert len(losses_all_trials) == len(trial_labels) == 24, \
+assert len(losses_all_trials) == len(trial_labels) == 20, \
     f"Oczekiwano 24 prób, znaleziono: {len(losses_all_trials)}, etykiety: {len(trial_labels)}"
 
 # Rysowanie wykresu
@@ -45,7 +45,7 @@ plt.figure(figsize=(14, 7))
 for loss_values, label in zip(losses_all_trials, trial_labels):
     plt.plot(range(1, len(loss_values)+1), loss_values, label=label, linewidth=1)
 
-plt.title("Train Loss dla 24 prób (autoenkoder)", fontsize=14)
+plt.title("Train Loss dla 20 prób (autoenkoder)", fontsize=14)
 plt.xlabel("Epoka", fontsize=12)
 plt.ylabel("Train Loss (MSE)", fontsize=12)
 plt.grid(True)

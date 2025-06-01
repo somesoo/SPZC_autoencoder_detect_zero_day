@@ -11,24 +11,24 @@ from sklearn.model_selection import ParameterGrid
 
 # === Konfiguracja
 DATA_DIR = "./prepared_data"
-MODELS_DIR = "./models"
-PLOTS_DIR = "./plots"
+MODELS_DIR = "./models_final"
+PLOTS_DIR = "./plots/plots_final"
 RESULTS_DIR = "./optimization_results"
 os.makedirs(MODELS_DIR, exist_ok=True)
 os.makedirs(PLOTS_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-MAX_TRIALS = 24
-EPOCHS = 50
+MAX_TRIALS = 2
+EPOCHS = 10
 ENCODER_DIMS = [64, 32, 16]
 DECODER_DIMS = [32, 64]
 
 # === Hiperparametry do siatki
 param_grid = {
-    "dropout": [0.0, 0.1, 0.2],
+    "dropout": [0.0],
     "batch_size": [512, 1024],
-    "lr": [0.001, 0.0005],
-    "batchnorm": [True, False],
+    "lr": [0.001],
+    "batchnorm": [True],
 }
 
 # === Wczytaj dane

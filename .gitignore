@@ -1,6 +1,7 @@
 *.pdf
 .venv/
 data/
+attack_splits/
 autoencoder_*.json
 __pycache__
 X_train.npy
@@ -8,5 +9,4 @@ X_valid.npy
 X_test.npy
 X_attack.npy
 benign_splits/
-separated/BENIGN__*
-separated/DoS-Hulk__Wednesday*
+*.npy

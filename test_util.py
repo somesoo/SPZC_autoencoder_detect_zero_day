@@ -2,7 +2,7 @@ import os, json, numpy as np, joblib, torch
 from datetime import datetime
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
-def load_scaler(path="./prepared_data/scaler_train_valid.pkl"):
+def load_scaler(path="./prepared_data/scaler.pkl"):
     return joblib.load(path)
 
 def load_model(model_path, input_dim, device):

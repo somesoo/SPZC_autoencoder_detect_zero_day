@@ -1,0 +1,20 @@
+{
+  "timestamp": "20250601_2108",
+  "input_dim": 115,
+  "encoder_dims": [
+    64,
+    32,
+    16
+  ],
+  "decoder_dims": [
+    32,
+    64
+  ],
+  "batchnorm": true,
+  "dropout": 0.0,
+  "epochs": 10,
+  "batch_size": 512,
+  "lr": 0.001,
+  "final_train_loss": 0.032950937449711545,
+  "final_valid_loss": 0.020159361883997917
+}
