@@ -31,13 +31,13 @@ PROJ/
 Podziel dane na osobne pliki CSV:
 
 ```bash
-python3 split_attacks_and_benign.py
+python3 split_attack_by_day.py
 ```
 
 Następnie połącz dane benign i podziel je na:
 
 ```bash
-python3 split_benign_sets.py
+python3 split_benign_dataset.py
 ```
 
 (Train/Valid/Test = 70%/10%/20%)
@@ -50,7 +50,16 @@ python3 convert_csv_to_npy.py
 
 Z plików CSV generuje X\_train.npy, X\_valid.npy (bez etykiet).
 
-## 3. Trening autoenkodera
+## 3. Optymalizacja hiperparametrów
+
+```bash
+python3 optimize_autoencoder.py --max-trials 20
+```
+
+Wykonuje 20 losowych treningów z różnymi parametrami i zapisuje najlepszy model + metadane.
+
+
+## 4. Trening autoenkodera
 
 ```bash
 python3 train_autoencoder.py --epochs 50 --batch-size 512 --lr 0.001 \
@@ -59,13 +68,6 @@ python3 train_autoencoder.py --epochs 50 --batch-size 512 --lr 0.001 \
 
 Model zapisuje się automatycznie do `models/`, razem z metadanymi i wykresem strat + accuracy.
 
-## 4. Optymalizacja hiperparametrów
-
-```bash
-python3 grid_search_autoencoder.py --max-trials 20
-```
-
-Wykonuje 20 losowych treningów z różnymi parametrami i zapisuje najlepszy model + metadane.
 
 ## 5. Testowanie modelu
 
