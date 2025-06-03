@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 SOURCE_DIR = "./separated_kitsune"
-OUTPUT_DIR = "./attack_splits"
+OUTPUT_DIR = "./benign_splits"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Wczytaj wszystkie pliki BENIGN__*.csv
@@ -25,15 +25,15 @@ df_benign = pd.concat(all_benign, ignore_index=True)
 print(f"\nŁączna liczba rekordów benign: {len(df_benign)}")
 
 # Tasowanie i dzielenie
-df_temp, df_test = train_test_split(df_benign, test_size=0.40, random_state=42, shuffle=True)
-df_train, df_valid = train_test_split(df_temp, test_size=0.20, random_state=42, shuffle=True)  # 0.125 * 0.8 = 0.10
+df_temp, df_test = train_test_split(df_benign, test_size=0.20, random_state=42, shuffle=True)
+df_train, df_valid = train_test_split(df_temp, test_size=0.125, random_state=42, shuffle=True)  # 0.125 * 0.8 = 0.10
 
 # Zapis do CSV
 df_train.to_csv(os.path.join(OUTPUT_DIR, "benign_train.csv"), index=False)
 df_valid.to_csv(os.path.join(OUTPUT_DIR, "benign_valid.csv"), index=False)
 df_test.to_csv(os.path.join(OUTPUT_DIR, "benign_test.csv"), index=False)
 
-print("\nZbiory zapisane w katalogu ./attack_splits/:")
+print("\nZbiory zapisane w katalogu ./benign_splits/:")
 print(f" - benign_train.csv: {len(df_train)}")
 print(f" - benign_valid.csv: {len(df_valid)}")
 print(f" - benign_test.csv:  {len(df_test)}")

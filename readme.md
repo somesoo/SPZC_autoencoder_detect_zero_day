@@ -11,19 +11,20 @@
 
 ## Dataset:
 
-http://cicresearch.ca/CICDataset/CIC-IDS-2017/Dataset/CIC-IDS-2017/
+https://www.kaggle.com/datasets/ymirsky/network-attack-dataset-kitsune/data?select=ARP%20MitM
 
 ## Struktura katalogów
 
 ```
 PROJ/
 ├── data/TrafficLabelling/         # surowe pliki CSV - do ściągnięcia offline
-├── separated/                     # dane podzielone na osobne pliki CSV (jeden atak per plik)
 ├── benign_splits/                # benign_train.csv, benign_valid.csv, benign_test.csv
-├── prepared_data/                # dane przerobione do .npy dla trenowania i testów
+├── attack_splits/                # atak MitM podzielony na różnej wielkości zbiory
+├── separated_kitsune/            # podzielone dane na benign i attack
+├── prepared_data/                # dane przerobione benign do .npy dla trenowania i testów
 ├── models/                       # zapisane modele .pt i metadane .json
 ├── plots/                        # wykresy strat, accuracy, wyniki testów
-├── tests/                        # foldery z wynikami każdego testu
+├── tests/                        # foldery z wynikami każdego testu + danymi .npy na których był wykonywany test
 ```
 
 ## 1. Przygotowanie danych
@@ -37,10 +38,16 @@ python3 split_attacks_and_benign.py
 Następnie połącz dane benign i podziel je na:
 
 ```bash
-python3 split_benign_sets.py
+python3 split_benign_datasets.py
 ```
 
 (Train/Valid/Test = 70%/10%/20%)
+
+```bash
+python3 split_attack_datasets.py
+```
+
+(attack w proporcjach = 50%/35%%/15%)
 
 ## 2. Konwersja danych do .npy
 
@@ -50,7 +57,16 @@ python3 convert_csv_to_npy.py
 
 Z plików CSV generuje X\_train.npy, X\_valid.npy (bez etykiet).
 
-## 3. Trening autoenkodera
+## 3. Optymalizacja hiperparametrów
+
+```bash
+python3 optimize_autoencoder.py --max-trials 20
+```
+
+Wykonuje 20 losowych treningów z różnymi parametrami i zapisuje najlepszy model + metadane.
+
+
+## 4. Trening autoenkodera
 
 ```bash
 python3 train_autoencoder.py --epochs 50 --batch-size 512 --lr 0.001 \
@@ -59,30 +75,17 @@ python3 train_autoencoder.py --epochs 50 --batch-size 512 --lr 0.001 \
 
 Model zapisuje się automatycznie do `models/`, razem z metadanymi i wykresem strat + accuracy.
 
-## 4. Optymalizacja hiperparametrów
-
-```bash
-python3 grid_search_autoencoder.py --max-trials 20
-```
-
-Wykonuje 20 losowych treningów z różnymi parametrami i zapisuje najlepszy model + metadane.
 
 ## 5. Testowanie modelu
-
-### Tryby testu:
-
-* `--test-type benign` – test tylko na danych benign (walidacja FPR)
-* `--test-type mix` – 50/50 benign i ataki (globalne metryki)
-* `--test-type single` – test na konkretnym ataku (np. `--attack ddos`)
 
 Przykład:
 
 ```bash
 python3 run_test.py \
-  --model models/autoencoder_20250529_1621.pt \
-  --test-type single \
-  --attack-files separated/PortScan__Friday-WorkingHours-Afternoon-PortScan.csv \
-  --thresholds 0.01 0.02 0.03 0.04
+  --models-dir models \
+  --data-dir separated_kitsune \
+  --benign-test-csv benign_splits/benign_test.csv \
+  --thresholds 0.01 0.02 0.05 0.1
 ```
 
 ### Artefakty:
@@ -105,9 +108,9 @@ Automatycznie wybiera najlepszy threshold i rysuje 3 wykresy.
 ```bash
 python3 benchmark_single.py \
   --models-dir models \
-  --data-dir separated \
+  --data-dir separated_kitsune \
   --benign-test-csv benign_splits/benign_test.csv \
-  --thresholds 0.01 0.02 0.03 0.04
+  --thresholds 0.01 0.02 0.05 0.1
 ```
 
 Zapisuje `benchmark_single_results.csv`
@@ -117,25 +120,17 @@ Zapisuje `benchmark_single_results.csv`
 ```bash
 python3 benchmark_multiple.py \
   --models-dir models \
-  --data-dir separated \
+  --data-dir separated_kitsune \
   --benign-test-csv benign_splits/benign_test.csv \
   --thresholds 0.01 0.02 0.03 0.04 \
-  --n 4 --c 3
 ```
 
 Zapisuje `benchmark_pairwise_results.csv`
 
-## 8. Wizualizacja benchmarków
-
-
-### Wykres słupkowy:
+## Dodatkowe pliki:
 
 ```bash
-python3 visualize_pairwise.py --metric recall
+python3 plot_learning.py
 ```
 
----
-
-## Dodatkowe narzędzia:
-
-* `generate_attack_list.py` – zapisuje wszystkie dostępne ataki do `attack_list.txt`
+Tworzy wykres uczenia się podczas optymalizacji na podstawie logu z terminala

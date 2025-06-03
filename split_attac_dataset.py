@@ -1,0 +1,39 @@
+import os
+import glob
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+SOURCE_DIR = "./separated_kitsune"
+OUTPUT_DIR = "./attack_splits"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# Wczytaj wszystkie pliki attack__*.csv
+attack_files = glob.glob(os.path.join(SOURCE_DIR, "attack*.csv"))
+
+all_attack = []
+
+for file_path in sorted(attack_files):
+    try:
+        df = pd.read_csv(file_path, encoding='latin1', low_memory=False)
+        all_attack.append(df)
+        print(f"Załadowano {os.path.basename(file_path)} ({len(df)} rekordów)")
+    except Exception as e:
+        print(f"Błąd w {file_path}: {e}")
+
+# Połączenie w jedną całość
+df_attack = pd.concat(all_attack, ignore_index=True)
+print(f"\nŁączna liczba rekordów attack: {len(df_attack)}")
+
+# Tasowanie i dzielenie
+df_temp, df_test = train_test_split(df_attack, test_size=0.40, random_state=42, shuffle=True)
+df_train, df_valid = train_test_split(df_temp, test_size=0.20, random_state=42, shuffle=True)  # 0.125 * 0.8 = 0.10
+
+# Zapis do CSV
+df_train.to_csv(os.path.join(OUTPUT_DIR, "attack_train.csv"), index=False)
+df_valid.to_csv(os.path.join(OUTPUT_DIR, "attack_valid.csv"), index=False)
+df_test.to_csv(os.path.join(OUTPUT_DIR, "attack_test.csv"), index=False)
+
+print("\nZbiory zapisane w katalogu ./attack_splits/:")
+print(f" - attack_train.csv: {len(df_train)}")
+print(f" - attack_valid.csv: {len(df_valid)}")
+print(f" - attack_test.csv:  {len(df_test)}")

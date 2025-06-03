@@ -10,3 +10,4 @@ X_test.npy
 X_attack.npy
 benign_splits/
 *.npy
+separated_kitsune/
