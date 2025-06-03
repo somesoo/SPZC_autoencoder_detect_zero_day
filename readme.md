@@ -141,3 +141,4 @@ python3 visualize_pairwise.py --metric recall
 ## Dodatkowe narzędzia:
 
 * `generate_attack_list.py` – zapisuje wszystkie dostępne ataki do `attack_list.txt`
+* `plot_learning.py` – tworzy wykres z optymalizacji uczenia encoderów na podstawie logu z terminala
