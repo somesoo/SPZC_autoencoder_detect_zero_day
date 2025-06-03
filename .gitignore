@@ -10,3 +10,4 @@ X_attack.npy
 benign_splits/
 separated/BENIGN__*
 separated/DoS-Hulk__Wednesday*
+*.npy

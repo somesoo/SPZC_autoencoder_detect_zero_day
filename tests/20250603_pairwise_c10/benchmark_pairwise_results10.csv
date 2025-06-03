@@ -1,0 +1,4 @@
+attacks,model,threshold,tp,fn,recall,f1,fpr
+Bot+PortScan+DoS-slowloris+Web-Attack--XSS+Infiltration+Heartbleed+FTP-Patator+DoS-GoldenEye+DDoS+Web-Attack--Sql-Injection,autoencoder_20250529_1323.pt,0.1,93066,220604,0.29670035387509164,0.4387439043587383,0.03849808631384453
+Bot+PortScan+DoS-slowloris+Web-Attack--XSS+Infiltration+Heartbleed+FTP-Patator+DoS-GoldenEye+DDoS+DoS-Hulk,autoencoder_20250529_1323.pt,0.1,248178,296544,0.45560487735028143,0.6124807723064076,0.03849808631384453
+Bot+PortScan+DoS-slowloris+Web-Attack--XSS+Infiltration+Heartbleed+FTP-Patator+DoS-GoldenEye+DDoS+DoS-Slowhttptest,autoencoder_20250529_1323.pt,0.1,98334,220814,0.30811410380137116,0.45212658401543243,0.03849808631384453
